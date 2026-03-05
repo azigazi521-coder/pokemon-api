@@ -34,5 +34,8 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'pokeapi' => [
+        'url' => env('POKEAPI_URL', 'https://pokeapi.co/api/v2/pokemon'),
+    ],
 
 ];
