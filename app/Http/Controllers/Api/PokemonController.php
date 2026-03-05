@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BannedPokemon;
 use Illuminate\Support\Facades\Http;
+use App\Models\CustomPokemon;
 
 class PokemonController extends Controller
 {
@@ -28,16 +29,32 @@ class PokemonController extends Controller
         $pokeApiUrl = config('services.pokeapi.url');
 
         foreach ($allowedNames as $name) {
-            $response =  Http::withoutVerifying()->get("{$pokeApiUrl}/{$name}");
 
-            if ($response->successful()) {
-                $data = $response->json();
+            $custom = CustomPokemon::where('name', $name)->first();
+
+            if ($custom) {
+
                 $results[] = [
-                    'name' => $data['name'],
-                    'height' => $data['height'],
-                    'weight' => $data['weight'],
-                    'types' => collect($data['types'])->pluck('type.name')
+                    'name' => $custom->name,
+                    'height' => $custom->height,
+                    'weight' => $custom->weight,
+                    'types' => $custom->types,
+                    'source' => 'pokemon dodany własnoręcznie'
                 ];
+            } else {
+
+                $response =  Http::withoutVerifying()->get("{$pokeApiUrl}/{$name}");
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    $results[] = [
+                        'name' => $data['name'],
+                        'height' => $data['height'],
+                        'weight' => $data['weight'],
+                        'types' => collect($data['types'])->pluck('type.name'),
+                        'source' => 'oficjalny pokemon z Poke Api'
+                    ];
+                }
             }
         }
 
