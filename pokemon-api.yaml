@@ -1,0 +1,244 @@
+openapi: 3.0.3
+info:
+  title: Laravel Pokemon API
+  description: API do zarządzania Pokemonami, w tym listą zbanowanych i customowych Pokemonów oraz integracją z PokeAPI.
+  version: 1.0.0
+
+servers:
+  - url: http://127.0.0.1:8000/api
+    description: Serwer lokalny
+
+paths:
+  /banned:
+    get:
+      summary: Pobierz listę zbanowanych Pokemonów
+      description: Zwraca wszystkie Pokemon z listy zakazanych
+      parameters:
+        - name: X-SUPER-SECRET-KEY
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Klucz autoryzacyjny
+      responses:
+        '200':
+          description: Lista zbanowanych Pokemonów
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+
+    post:
+      summary: Dodaj nowego zbanowanego Pokemona
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  example: bulbasaur
+      parameters:
+        - name: X-SUPER-SECRET-KEY
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Pokemon został dodany
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+
+  /banned/{name}:
+    delete:
+      summary: Usuń zbanowanego Pokemona
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Nazwa Pokemona do usunięcia
+        - name: X-SUPER-SECRET-KEY
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Pokemon został usunięty
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Pokemon usunięty
+
+  /info:
+    post:
+      summary: Pobierz dane Pokemonów z PokeAPI
+      description: Filtruje zbanowane Pokemony i zwraca dane z PokeAPI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                names:
+                  type: array
+                  items:
+                    type: string
+                  example: [ "pikachu", "mewtwo", "bulbasaur" ]
+      parameters:
+        - name: X-SUPER-SECRET-KEY
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Dane Pokemonów
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        height:
+                          type: integer
+                        weight:
+                          type: integer
+                        types:
+                          type: array
+                          items:
+                            type: string
+
+  /custom:
+    get:
+      summary: Pobierz customowe Pokemony
+      parameters:
+        - name: X-SUPER-SECRET-KEY
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista custom Pokemonów
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        height:
+                          type: integer
+                        weight:
+                          type: integer
+                        types:
+                          type: array
+                          items:
+                            type: string
+
+    post:
+      summary: Dodaj customowego Pokemona
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, height, weight, types]
+              properties:
+                name:
+                  type: string
+                  example: testowy-pokemon
+                height:
+                  type: integer
+                  example: 10
+                weight:
+                  type: integer
+                  example: 20
+                types:
+                  type: array
+                  items:
+                    type: string
+                  example: ["fire"]
+      parameters:
+        - name: X-SUPER-SECRET-KEY
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Customowy Pokemon dodany
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+
+  /custom/{name}:
+    delete:
+      summary: Usuń customowego Pokemona
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: X-SUPER-SECRET-KEY
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Customowy Pokemon usunięty
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Pokemon usunięty
