@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\CustomPokemon;
 use Illuminate\Support\Facades\Http;
+use App\Services\PokemonService;
 
 class CustomPokemonController extends Controller
 {
+
+    public function __construct(private PokemonService $pokemonService) {}
 
     public function index()
     {
@@ -26,10 +29,9 @@ class CustomPokemonController extends Controller
 
         $name = strtolower($validated['name']);
 
-        $pokeApiUrl = config('services.pokeapi.url');
+        $pokemonData = $this->pokemonService->getPokemon(strtolower($name));
 
-        $pokeApiResponse = Http::withoutVerifying()->get("{$pokeApiUrl}/{$name}");
-        if ($pokeApiResponse->successful()) {
+        if ($pokemonData) {
             return response()->json(['error' => 'Pokemon o tej nazwie już istnieje w PokeAPI'], 422);
         }
 
